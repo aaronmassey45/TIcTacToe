@@ -1,7 +1,8 @@
 $(document).ready(function() {
   let grid = Array(9).fill(null);
+  const p1 = { xo: '', winCount: 0 };
+  const p2 = { xo: '', winCount: 0, isComputer: false, isComputerTurn: false };
   var numPlayers = 0; //stores number of players
-  var p1xo, p2xo; //stores p1 and p2 as 'X' or 'O'
   var turn = 0; //turn counter
   var prefix = 'grid';
   var el; //used with prefix to set mark on a grid position
@@ -9,12 +10,8 @@ $(document).ready(function() {
   var lastDigit; //gets the digit off grid id
   var p1Mark = [],
     p2Mark = []; //stores p1 and p2/AI's marks
-  var computerGo; //true/false variable for the AI turn
   var win; //variable to stop game if there is a win or draw
   var turnTime = 350;
-  var p1WinCount = 0,
-    p2WinCount = 0,
-    computerWinCount = 0;
 
   //CHOOSES NUMBER OF PLAYERS
   $('#oneP').click(function() {
@@ -32,8 +29,8 @@ $(document).ready(function() {
 
   //P1 CHOOSES X OR O
   $('#X').click(function() {
-    p1xo = 'X';
-    p2xo = 'O';
+    p1.xo = 'X';
+    p2.xo = 'O';
     $('#xo').hide();
     $('#gameboard').show();
     $('.playerOneTurn').animate(
@@ -45,8 +42,8 @@ $(document).ready(function() {
     $('.winCount').fadeTo('slow', 1);
   });
   $('#O').click(function() {
-    p1xo = 'O';
-    p2xo = 'X';
+    p1.xo = 'O';
+    p2.xo = 'X';
     $('#xo').hide();
     $('#gameboard').show();
     $('.playerOneTurn').animate(
@@ -68,8 +65,8 @@ $(document).ready(function() {
     if (numPlayers === 1 && turn < 9) {
       if ($(this).html() === '') {
         //makes sure spot is empty first
-        computerGo = false;
-        $(this).html(p1xo); //sets p1 marker at the clicked location
+        p2.isComputerTurn = false;
+        $(this).html(p1.xo); //sets p1 marker at the clicked location
         turn++; //increments turn
         checkWin(grid); //checks to see if p1 has won
         if (win === true) {
@@ -90,16 +87,15 @@ $(document).ready(function() {
         $('#gameboard').css('pointer-events', 'none'); //disables clicking during computer turn
         lastDigit = this.id.substr(-1); //grabs digit from grid id
         setTimeout(function() {
-          grid[lastDigit] = p1xo;
+          grid[lastDigit] = p1.xo;
           //p1Mark.push(lastDigit); //adds grid location to array of p1 marks
           empty.splice(empty.indexOf(lastDigit), 1); //removes the clicked location from array of empty spots
           almostWin(); //checks to see if user/AI has almost won before AI chooses a spot and if not sets computerGo to 1
-          if (computerGo === true) {
+          if (p2.isComputerTurn === true) {
             //denotes that it is the AI's turn and user/AI is not in a position to win
             el = document.getElementById(prefix + empty[0]); //sets el as the id of the first grid space in empty array
-            $(el).html(p2xo); //puts AI mark at el
-            grid[empty.shift()] = p2xo;
-            //p2Mark.push(empty.shift()); //removes first value from empty and adds to p2mark
+            $(el).html(p2.xo); //puts AI mark at el
+            grid[empty.shift()] = p2.xo;
           }
           $('.playerOneTurn').animate(
             {
@@ -125,7 +121,7 @@ $(document).ready(function() {
       if (turn % 2 === 0) {
         //if turn is even, p1 goes
         if ($(this).html() === '') {
-          $(this).html(p1xo); //sets p1 marker at the clicked location
+          $(this).html(p1.xo); //sets p1 marker at the clicked location
           turn++; //increments turn
           $('.playerOneTurn').animate(
             {
@@ -147,7 +143,7 @@ $(document).ready(function() {
       } else {
         //if turn is odd, p2 goes
         if ($(this).html() === '') {
-          $(this).html(p2xo); //sets p2 marker at the clicked location
+          $(this).html(p2.xo); //sets p2 marker at the clicked location
           turn++; //increments turn
           $('.playerOneTurn').animate(
             {
@@ -196,37 +192,37 @@ $(document).ready(function() {
   function almostWin() {
     //check AI's positions first
     if (p2Mark.includes('0') && p2Mark.includes('1') && empty.includes('2')) {
-      $('#grid2').html(p2xo);
+      $('#grid2').html(p2.xo);
     } else if (
       p2Mark.includes('0') &&
       p2Mark.includes('2') &&
       empty.includes('1')
     ) {
-      $('#grid1').html(p2xo);
+      $('#grid1').html(p2.xo);
     } else if (
       p2Mark.includes('0') &&
       p2Mark.includes('3') &&
       empty.includes('6')
     ) {
-      $('#grid6').html(p2xo);
+      $('#grid6').html(p2.xo);
     } else if (
       p2Mark.includes('0') &&
       p2Mark.includes('4') &&
       empty.includes('8')
     ) {
-      $('#grid8').html(p2xo);
+      $('#grid8').html(p2.xo);
     } else if (
       p2Mark.includes('0') &&
       p2Mark.includes('6') &&
       empty.includes('3')
     ) {
-      $('#grid3').html(p2xo);
+      $('#grid3').html(p2.xo);
     } else if (
       p2Mark.includes('0') &&
       p2Mark.includes('8') &&
       empty.includes('4')
     ) {
-      $('#grid4').html(p2xo);
+      $('#grid4').html(p2.xo);
     }
 
     //1's
@@ -235,19 +231,19 @@ $(document).ready(function() {
       p2Mark.includes('2') &&
       empty.includes('0')
     ) {
-      $('#grid0').html(p2xo);
+      $('#grid0').html(p2.xo);
     } else if (
       p2Mark.includes('1') &&
       p2Mark.includes('4') &&
       empty.includes('7')
     ) {
-      $('#grid7').html(p2xo);
+      $('#grid7').html(p2.xo);
     } else if (
       p2Mark.includes('1') &&
       p2Mark.includes('7') &&
       empty.includes('4')
     ) {
-      $('#grid4').html(p2xo);
+      $('#grid4').html(p2.xo);
     }
 
     //2's
@@ -256,25 +252,25 @@ $(document).ready(function() {
       p2Mark.includes('6') &&
       empty.includes('4')
     ) {
-      $('#grid4').html(p2xo);
+      $('#grid4').html(p2.xo);
     } else if (
       p2Mark.includes('2') &&
       p2Mark.includes('4') &&
       empty.includes('6')
     ) {
-      $('#grid6').html(p2xo);
+      $('#grid6').html(p2.xo);
     } else if (
       p2Mark.includes('2') &&
       p2Mark.includes('5') &&
       empty.includes('8')
     ) {
-      $('#grid8').html(p2xo);
+      $('#grid8').html(p2.xo);
     } else if (
       p2Mark.includes('2') &&
       p2Mark.includes('8') &&
       empty.includes('5')
     ) {
-      $('#grid5').html(p2xo);
+      $('#grid5').html(p2.xo);
     }
 
     //3's
@@ -283,19 +279,19 @@ $(document).ready(function() {
       p2Mark.includes('4') &&
       empty.includes('5')
     ) {
-      $('#grid5').html(p2xo);
+      $('#grid5').html(p2.xo);
     } else if (
       p2Mark.includes('3') &&
       p2Mark.includes('5') &&
       empty.includes('4')
     ) {
-      $('#grid4').html(p2xo);
+      $('#grid4').html(p2.xo);
     } else if (
       p2Mark.includes('3') &&
       p2Mark.includes('6') &&
       empty.includes('0')
     ) {
-      $('#grid0').html(p2xo);
+      $('#grid0').html(p2.xo);
     }
 
     //4's
@@ -304,25 +300,25 @@ $(document).ready(function() {
       p2Mark.includes('5') &&
       empty.includes('3')
     ) {
-      $('#grid3').html(p2xo);
+      $('#grid3').html(p2.xo);
     } else if (
       p2Mark.includes('4') &&
       p2Mark.includes('6') &&
       empty.includes('2')
     ) {
-      $('#grid2').html(p2xo);
+      $('#grid2').html(p2.xo);
     } else if (
       p2Mark.includes('4') &&
       p2Mark.includes('7') &&
       empty.includes('1')
     ) {
-      $('#grid1').html(p2xo);
+      $('#grid1').html(p2.xo);
     } else if (
       p2Mark.includes('4') &&
       p2Mark.includes('8') &&
       empty.includes('0')
     ) {
-      $('#grid0').html(p2xo);
+      $('#grid0').html(p2.xo);
     }
 
     //6
@@ -331,7 +327,7 @@ $(document).ready(function() {
       p2Mark.includes('7') &&
       empty.includes('8')
     ) {
-      $('#grid8').html(p2xo);
+      $('#grid8').html(p2.xo);
     }
 
     //8's
@@ -340,19 +336,19 @@ $(document).ready(function() {
       p2Mark.includes('5') &&
       empty.includes('2')
     ) {
-      $('#grid2').html(p2xo);
+      $('#grid2').html(p2.xo);
     } else if (
       p2Mark.includes('8') &&
       p2Mark.includes('6') &&
       empty.includes('7')
     ) {
-      $('#grid7').html(p2xo);
+      $('#grid7').html(p2.xo);
     } else if (
       p2Mark.includes('8') &&
       p2Mark.includes('7') &&
       empty.includes('6')
     ) {
-      $('#grid6').html(p2xo);
+      $('#grid6').html(p2.xo);
     }
 
     //check p1's positions
@@ -361,7 +357,7 @@ $(document).ready(function() {
       p1Mark.includes('1') &&
       empty.includes('2')
     ) {
-      $('#grid2').html(p2xo);
+      $('#grid2').html(p2.xo);
       empty.splice(empty.indexOf('2'), 1);
       p2Mark.push('2');
     } else if (
@@ -369,7 +365,7 @@ $(document).ready(function() {
       p1Mark.includes('2') &&
       empty.includes('1')
     ) {
-      $('#grid1').html(p2xo);
+      $('#grid1').html(p2.xo);
       empty.splice(empty.indexOf('1'), 1);
       p2Mark.push('1');
     } else if (
@@ -377,7 +373,7 @@ $(document).ready(function() {
       p1Mark.includes('3') &&
       empty.includes('6')
     ) {
-      $('#grid6').html(p2xo);
+      $('#grid6').html(p2.xo);
       empty.splice(empty.indexOf('6'), 1);
       p2Mark.push('6');
     } else if (
@@ -385,7 +381,7 @@ $(document).ready(function() {
       p1Mark.includes('4') &&
       empty.includes('8')
     ) {
-      $('#grid8').html(p2xo);
+      $('#grid8').html(p2.xo);
       empty.splice(empty.indexOf('8'), 1);
       p2Mark.push('8');
     } else if (
@@ -393,7 +389,7 @@ $(document).ready(function() {
       p1Mark.includes('6') &&
       empty.includes('3')
     ) {
-      $('#grid3').html(p2xo);
+      $('#grid3').html(p2.xo);
       empty.splice(empty.indexOf('3'), 1);
       p2Mark.push('3');
     } else if (
@@ -401,7 +397,7 @@ $(document).ready(function() {
       p1Mark.includes('8') &&
       empty.includes('4')
     ) {
-      $('#grid4').html(p2xo);
+      $('#grid4').html(p2.xo);
       empty.splice(empty.indexOf('4'), 1);
       p2Mark.push('4');
     }
@@ -412,7 +408,7 @@ $(document).ready(function() {
       p1Mark.includes('2') &&
       empty.includes('0')
     ) {
-      $('#grid0').html(p2xo);
+      $('#grid0').html(p2.xo);
       empty.splice(empty.indexOf('0'), 1);
       p2Mark.push('0');
     } else if (
@@ -420,7 +416,7 @@ $(document).ready(function() {
       p1Mark.includes('4') &&
       empty.includes('7')
     ) {
-      $('#grid7').html(p2xo);
+      $('#grid7').html(p2.xo);
       empty.splice(empty.indexOf('7'), 1);
       p2Mark.push('7');
     } else if (
@@ -428,7 +424,7 @@ $(document).ready(function() {
       p1Mark.includes('7') &&
       empty.includes('4')
     ) {
-      $('#grid4').html(p2xo);
+      $('#grid4').html(p2.xo);
       empty.splice(empty.indexOf('4'), 1);
       p2Mark.push('4');
     }
@@ -439,7 +435,7 @@ $(document).ready(function() {
       p1Mark.includes('6') &&
       empty.includes('4')
     ) {
-      $('#grid4').html(p2xo);
+      $('#grid4').html(p2.xo);
       empty.splice(empty.indexOf('4'), 1);
       p2Mark.push('4');
     } else if (
@@ -447,7 +443,7 @@ $(document).ready(function() {
       p1Mark.includes('4') &&
       empty.includes('6')
     ) {
-      $('#grid6').html(p2xo);
+      $('#grid6').html(p2.xo);
       empty.splice(empty.indexOf('6'), 1);
       p2Mark.push('6');
     } else if (
@@ -455,7 +451,7 @@ $(document).ready(function() {
       p1Mark.includes('5') &&
       empty.includes('8')
     ) {
-      $('#grid8').html(p2xo);
+      $('#grid8').html(p2.xo);
       empty.splice(empty.indexOf('8'), 1);
       p2Mark.push('8');
     } else if (
@@ -463,7 +459,7 @@ $(document).ready(function() {
       p1Mark.includes('8') &&
       empty.includes('5')
     ) {
-      $('#grid5').html(p2xo);
+      $('#grid5').html(p2.xo);
       empty.splice(empty.indexOf('5'), 1);
       p2Mark.push('5');
     }
@@ -474,7 +470,7 @@ $(document).ready(function() {
       p1Mark.includes('4') &&
       empty.includes('5')
     ) {
-      $('#grid5').html(p2xo);
+      $('#grid5').html(p2.xo);
       empty.splice(empty.indexOf('5'), 1);
       p2Mark.push('5');
     } else if (
@@ -482,7 +478,7 @@ $(document).ready(function() {
       p1Mark.includes('5') &&
       empty.includes('4')
     ) {
-      $('#grid4').html(p2xo);
+      $('#grid4').html(p2.xo);
       empty.splice(empty.indexOf('4'), 1);
       p2Mark.push('4');
     } else if (
@@ -490,7 +486,7 @@ $(document).ready(function() {
       p1Mark.includes('6') &&
       empty.includes('0')
     ) {
-      $('#grid0').html(p2xo);
+      $('#grid0').html(p2.xo);
       empty.splice(empty.indexOf('0'), 1);
       p2Mark.push('0');
     }
@@ -501,7 +497,7 @@ $(document).ready(function() {
       p1Mark.includes('5') &&
       empty.includes('3')
     ) {
-      $('#grid3').html(p2xo);
+      $('#grid3').html(p2.xo);
       empty.splice(empty.indexOf('3'), 1);
       p2Mark.push('3');
     } else if (
@@ -509,7 +505,7 @@ $(document).ready(function() {
       p1Mark.includes('6') &&
       empty.includes('2')
     ) {
-      $('#grid2').html(p2xo);
+      $('#grid2').html(p2.xo);
       empty.splice(empty.indexOf('2'), 1);
       p2Mark.push('2');
     } else if (
@@ -517,7 +513,7 @@ $(document).ready(function() {
       p1Mark.includes('7') &&
       empty.includes('1')
     ) {
-      $('#grid1').html(p2xo);
+      $('#grid1').html(p2.xo);
       empty.splice(empty.indexOf('1'), 1);
       p2Mark.push('1');
     } else if (
@@ -525,7 +521,7 @@ $(document).ready(function() {
       p1Mark.includes('8') &&
       empty.includes('0')
     ) {
-      $('#grid0').html(p2xo);
+      $('#grid0').html(p2.xo);
       empty.splice(empty.indexOf('0'), 1);
       p2Mark.push('0');
     }
@@ -536,7 +532,7 @@ $(document).ready(function() {
       p1Mark.includes('7') &&
       empty.includes('8')
     ) {
-      $('#grid8').html(p2xo);
+      $('#grid8').html(p2.xo);
       empty.splice(empty.indexOf('8'), 1);
       p2Mark.push('8');
     }
@@ -547,7 +543,7 @@ $(document).ready(function() {
       p1Mark.includes('5') &&
       empty.includes('2')
     ) {
-      $('#grid2').html(p2xo);
+      $('#grid2').html(p2.xo);
       empty.splice(empty.indexOf('2'), 1);
       p2Mark.push('2');
     } else if (
@@ -555,7 +551,7 @@ $(document).ready(function() {
       p1Mark.includes('6') &&
       empty.includes('7')
     ) {
-      $('#grid7').html(p2xo);
+      $('#grid7').html(p2.xo);
       empty.splice(empty.indexOf('7'), 1);
       p2Mark.push('7');
     } else if (
@@ -563,14 +559,14 @@ $(document).ready(function() {
       p1Mark.includes('7') &&
       empty.includes('6')
     ) {
-      $('#grid6').html(p2xo);
+      $('#grid6').html(p2.xo);
       empty.splice(empty.indexOf('6'), 1);
       p2Mark.push('6');
     }
 
     // if none
     else {
-      computerGo = true;
+      p2.isComputerTurn = true;
     }
   }
 
@@ -599,12 +595,12 @@ $(document).ready(function() {
   //RESET FUNCTION TO RESET EVERYTHING
   function resetAll() {
     numPlayers = 0;
-    p1xo = '';
-    p2xo = '';
+    p1.xo = '';
+    p2.xo = '';
     win = false;
     turn = 0;
-    p1WinCount = 0;
-    p2WinCount = 0;
+    p1.winCount = 0;
+    p2.winCount = 0;
     computerWinCount = 0;
     grid = Array(9).fill(null);
     empty = ['6', '2', '0', '1', '3', '4', '8', '5', '7'];
@@ -631,7 +627,7 @@ $(document).ready(function() {
   //WHAT TO DO IN DIFFERENT WIN/DRAW SCENARIOS
   function p1Win(x1, x2, x3) {
     win = true;
-    p1WinCount++;
+    p1.winCount++;
 
     $('#' + prefix + x1).css('background-color', 'black');
     $('#' + prefix + x2).css('background-color', 'black');
@@ -650,7 +646,7 @@ $(document).ready(function() {
       $('#' + prefix + x2).css('color', 'red');
       $('#' + prefix + x3).css('color', 'red');
 
-      $('.p1WinCount').html(p1WinCount);
+      $('.p1WinCount').html(p1.winCount);
       $('#gameboard').hide();
       $('.playerOneTurn').hide();
       $('.playerTwoTurn').hide();
@@ -699,8 +695,8 @@ $(document).ready(function() {
           .html('Player 2 wins!')
           .fadeIn()
           .fadeOut(1000);
-        p2WinCount++;
-        $('.aiORp2WinCount').html(p2WinCount);
+        p2.winCount++;
+        $('.aiORp2WinCount').html(p2.winCount);
       }
       setTimeout(function() {
         reset();
