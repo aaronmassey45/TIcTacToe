@@ -1,10 +1,10 @@
 $(document).ready(function() {
+  let grid = Array(9).fill(null);
   var numPlayers = 0; //stores number of players
   var p1xo, p2xo; //stores p1 and p2 as 'X' or 'O'
   var turn = 0; //turn counter
   var prefix = 'grid';
   var el; //used with prefix to set mark on a grid position
-  var spots = [0, 0, 0, 0, 0, 0, 0, 0, 0]; //array of spots for checkWin conditions
   var empty = ['6', '2', '0', '1', '3', '4', '8', '5', '7']; //array for empty grid spaces
   var lastDigit; //gets the digit off grid id
   var p1Mark = [],
@@ -71,7 +71,7 @@ $(document).ready(function() {
         computerGo = false;
         $(this).html(p1xo); //sets p1 marker at the clicked location
         turn++; //increments turn
-        checkWin(); //checks to see if p1 has won
+        checkWin(grid); //checks to see if p1 has won
         if (win === true) {
           return;
         }
@@ -90,14 +90,16 @@ $(document).ready(function() {
         $('#gameboard').css('pointer-events', 'none'); //disables clicking during computer turn
         lastDigit = this.id.substr(-1); //grabs digit from grid id
         setTimeout(function() {
-          p1Mark.push(lastDigit); //adds grid location to array of p1 marks
+          grid[lastDigit] = p1xo;
+          //p1Mark.push(lastDigit); //adds grid location to array of p1 marks
           empty.splice(empty.indexOf(lastDigit), 1); //removes the clicked location from array of empty spots
           almostWin(); //checks to see if user/AI has almost won before AI chooses a spot and if not sets computerGo to 1
           if (computerGo === true) {
             //denotes that it is the AI's turn and user/AI is not in a position to win
             el = document.getElementById(prefix + empty[0]); //sets el as the id of the first grid space in empty array
             $(el).html(p2xo); //puts AI mark at el
-            p2Mark.push(empty.shift()); //removes first value from empty and adds to p2mark
+            grid[empty.shift()] = p2xo;
+            //p2Mark.push(empty.shift()); //removes first value from empty and adds to p2mark
           }
           $('.playerOneTurn').animate(
             {
@@ -113,7 +115,7 @@ $(document).ready(function() {
           );
           $('#gameboard').css('pointer-events', 'auto'); //re-enables clicking after computer turn
           turn++; //increments turn
-          checkWin(); //checks to see if AI has won
+          checkWin(grid); //checks to see if AI has won
         }, 1200);
       }
     }
@@ -137,7 +139,7 @@ $(document).ready(function() {
             },
             turnTime
           );
-          checkWin(); //checks if p1 has won
+          checkWin(grid); //checks if p1 has won
           if (win === true) {
             return;
           }
@@ -159,60 +161,35 @@ $(document).ready(function() {
             },
             turnTime
           );
-          checkWin(); //checks if p2 has won
+          checkWin(grid); //checks if p2 has won
         }
       }
     }
   });
 
   //checkWin FUNCTION
-  function checkWin() {
-    for (var i = 0; (el = document.getElementById(prefix + i)); i++) {
-      //since prefix is 'grid', checks from grid0 - grid9
-      if ($(el).html() === p1xo) {
-        //if that grid space = p1
-        spots.splice(i, 1, 1); //replace the 0 in spots array with a 1 at i's location
-      } else if ($(el).html() === p2xo) {
-        //if that grid space = p2
-        spots.splice(i, 1, 2); //replace the 0 in spots array with a 2 at i's location
+  function checkWin(squares) {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (
+        squares[a] &&
+        squares[a] === squares[b] &&
+        squares[a] === squares[c]
+      ) {
+        return p1Win(a, b, c);
       }
     }
-    //Goes through all possible win combinations and displays winner if conditions met
-    if (spots[0] === 1 && spots[1] === 1 && spots[2] === 1) {
-      p1Win(0, 1, 2);
-    } else if (spots[3] === 1 && spots[4] === 1 && spots[5] === 1) {
-      p1Win(3, 4, 5);
-    } else if (spots[6] === 1 && spots[7] === 1 && spots[8] === 1) {
-      p1Win(6, 7, 8);
-    } else if (spots[0] === 1 && spots[3] === 1 && spots[6] === 1) {
-      p1Win(0, 3, 6);
-    } else if (spots[1] === 1 && spots[4] === 1 && spots[7] === 1) {
-      p1Win(1, 4, 7);
-    } else if (spots[2] === 1 && spots[5] === 1 && spots[8] === 1) {
-      p1Win(2, 5, 8);
-    } else if (spots[0] === 1 && spots[4] === 1 && spots[8] === 1) {
-      p1Win(0, 4, 8);
-    } else if (spots[2] === 1 && spots[4] === 1 && spots[6] === 1) {
-      p1Win(2, 4, 6);
-    } else if (spots[0] === 2 && spots[1] === 2 && spots[2] === 2) {
-      p2Win(0, 1, 2);
-    } else if (spots[3] === 2 && spots[4] === 2 && spots[5] === 2) {
-      p2Win(3, 4, 5);
-    } else if (spots[6] === 2 && spots[7] === 2 && spots[8] === 2) {
-      p2Win(6, 7, 8);
-    } else if (spots[0] === 2 && spots[3] === 2 && spots[6] === 2) {
-      p2Win(0, 3, 6);
-    } else if (spots[1] === 2 && spots[4] === 2 && spots[7] === 2) {
-      p2Win(1, 4, 7);
-    } else if (spots[2] === 2 && spots[5] === 2 && spots[8] === 2) {
-      p2Win(2, 5, 8);
-    } else if (spots[0] === 2 && spots[4] === 2 && spots[8] === 2) {
-      p2Win(0, 4, 8);
-    } else if (spots[2] === 2 && spots[4] === 2 && spots[6] === 2) {
-      p2Win(2, 4, 6);
-    } else if (turn === 9) {
-      noWin();
-    }
+    return null;
   }
 
   //Chooses where AI marks on the grid if p1 or AI is about to win
@@ -601,7 +578,7 @@ $(document).ready(function() {
   function reset() {
     win = false;
     turn = 0;
-    spots = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    grid = Array(9).fill(null);
     empty = ['6', '2', '0', '1', '3', '4', '8', '5', '7'];
     p1Mark = [];
     p2Mark = [];
@@ -629,7 +606,7 @@ $(document).ready(function() {
     p1WinCount = 0;
     p2WinCount = 0;
     computerWinCount = 0;
-    spots = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    grid = Array(9).fill(null);
     empty = ['6', '2', '0', '1', '3', '4', '8', '5', '7'];
     p1Mark = [];
     p2Mark = [];
