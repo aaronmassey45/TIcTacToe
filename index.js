@@ -12,14 +12,14 @@ $(document).ready(function() {
     [0, 4, 8],
     [2, 4, 6],
   ];
-  var numPlayers = 0; //stores number of players
-  var turn = 0; //turn counter
-  var prefix = 'grid';
-  var el; //used with prefix to set mark on a grid position
-  var empty = ['6', '2', '0', '1', '3', '4', '8', '5', '7']; //array for empty grid spaces
-  var lastDigit; //gets the digit off grid id
-  var win; //variable to stop game if there is a win or draw
-  var turnTime = 350;
+  let numPlayers = 0; //stores number of players
+  let turn = 0; //turn counter
+  let prefix = 'grid';
+  let el; //used with prefix to set mark on a grid position
+  let empty = ['6', '2', '0', '1', '3', '4', '8', '5', '7']; //array for empty grid spaces
+  let lastDigit; //gets the digit off grid id
+  let win; //variable to stop game if there is a win or draw
+  let turnTime = 350;
 
   //CHOOSES NUMBER OF PLAYERS
   $('#oneP').click(function() {
@@ -155,7 +155,7 @@ $(document).ready(function() {
         squares[a] === squares[b] &&
         squares[a] === squares[c]
       ) {
-        return p1Win(a, b, c);
+        return displayWinner(a, b, c);
       }
     }
     return null;
@@ -234,79 +234,31 @@ $(document).ready(function() {
   }
 
   //WHAT TO DO IN DIFFERENT WIN/DRAW SCENARIOS
-  function p1Win(x1, x2, x3) {
+  function displayWinner(pos1, pos2, pos3) {
     win = true;
-    p1.winCount++;
+    const positions = `#grid${pos1}, #grid${pos2}, #grid${pos3}`;
+    const winVariables = {};
 
-    $('#' + prefix + x1).css('background-color', 'black');
-    $('#' + prefix + x2).css('background-color', 'black');
-    $('#' + prefix + x3).css('background-color', 'black');
-
-    $('#' + prefix + x1).css('color', 'white');
-    $('#' + prefix + x2).css('color', 'white');
-    $('#' + prefix + x3).css('color', 'white');
+    if (grid[pos1] === p1.xo) {
+      p1.winCount++;
+      winVariables.player = '1';
+      winVariables.winCount = p1.winCount;
+    } else {
+      p2.winCount++;
+      winVariables.player = '2';
+      winVariables.winCount = p2.winCount;
+    }
+    $(positions).css({ 'background-color': 'black', color: 'white' });
 
     setTimeout(function() {
-      $('#' + prefix + x1).css('background-color', 'transparent');
-      $('#' + prefix + x2).css('background-color', 'transparent');
-      $('#' + prefix + x3).css('background-color', 'transparent');
+      $(positions).css({ 'background-color': 'transparent', color: 'red' });
 
-      $('#' + prefix + x1).css('color', 'red');
-      $('#' + prefix + x2).css('color', 'red');
-      $('#' + prefix + x3).css('color', 'red');
-
-      $('.p1WinCount').html(p1.winCount);
-      $('#gameboard').hide();
-      $('.playerOneTurn').hide();
-      $('.playerTwoTurn').hide();
+      $(`.p${winVariables.player}WinCount`).html(winVariables.winCount);
+      $('#gameboard, .playerOneTurn, .playerTwoTurn').hide();
       $('#winner')
-        .html('Player 1 wins!')
+        .html(`Player ${winVariables.player} wins!`)
         .fadeIn()
-        .fadeOut(1000);
-      setTimeout(function() {
-        reset();
-      }, 2001);
-    }, 1500);
-  }
-
-  function p2Win(x1, x2, x3) {
-    win = true;
-
-    $('#' + prefix + x1).css('background-color', 'black');
-    $('#' + prefix + x2).css('background-color', 'black');
-    $('#' + prefix + x3).css('background-color', 'black');
-
-    $('#' + prefix + x1).css('color', 'white');
-    $('#' + prefix + x2).css('color', 'white');
-    $('#' + prefix + x3).css('color', 'white');
-
-    setTimeout(function() {
-      $('#' + prefix + x1).css('background-color', 'transparent');
-      $('#' + prefix + x2).css('background-color', 'transparent');
-      $('#' + prefix + x3).css('background-color', 'transparent');
-
-      $('#' + prefix + x1).css('color', 'red');
-      $('#' + prefix + x2).css('color', 'red');
-      $('#' + prefix + x3).css('color', 'red');
-
-      $('#gameboard').hide();
-      $('.playerOneTurn').hide();
-      $('.playerTwoTurn').hide();
-      if (numPlayers === 1) {
-        $('#winner')
-          .html('Computer wins!')
-          .fadeIn()
-          .fadeOut(1000);
-        p2.winCount++;
-        $('.aiORp2WinCount').html(p2.winCount);
-      } else if (numPlayers === 2) {
-        $('#winner')
-          .html('Player 2 wins!')
-          .fadeIn()
-          .fadeOut(1000);
-        p2.winCount++;
-        $('.aiORp2WinCount').html(p2.winCount);
-      }
+        .fadeOut(1250);
       setTimeout(function() {
         reset();
       }, 2001);
