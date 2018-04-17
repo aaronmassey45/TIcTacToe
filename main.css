@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css?family=Lobster|Permanent+Marker|Press+Start+2P');
+main, body, html {
+  background-color: #D2B887;
+  background-size: 100%;
+  background-attachment: fixed;
+  color: red;
+  font-size: 40px;
+  font-family: 'Permanent Marker', cursive;
+}
+
+#whiteboard {
+  background: white;
+  width: 700px;
+  height: 550px;
+  border: 15px solid grey;
+  border-radius: 10px;
+  margin: auto;
+  margin-top: 20px;
+  -webkit-box-shadow: 0px 17px 15px 11px rgba(69, 67, 69, 1);
+  -moz-box-shadow: 0px 17px 15px 11px rgba(69, 67, 69, 1);
+  box-shadow: 0px 17px 15px 11px rgba(69, 67, 69, 1);
+  position: relative;
+}
+
+#title1, #title2 {
+  color: black;
+  font-family: 'Lobster', cursive;
+}
+
+#whiteboard hr {
+  display: block;
+  width: 90%;
+  height: 2px;
+  border-top: 2px solid black;
+}
+
+.playerOneTurn, .playerTwoTurn {
+  height: 160px;
+  width: 22px;
+  letter-spacing: 10px;
+  padding: 2px;
+  font-size: 15px;
+  word-break: break-all;
+  background-color: blue;
+  border: 2px solid black;
+  color: white;
+  font-family: 'Press Start 2P', cursive;
+  position: absolute;
+}
+
+.playerOneTurn {
+  border-left: none;
+}
+
+.playerTwoTurn {
+  border-right: none;
+  right: 0;
+}
+
+table {
+  margin: auto;
+  font-size: 50px;
+}
+
+#gameboard td {
+  height: 100px;
+  width: 100px;
+}
+
+.winCount td {
+  height: 20px;
+  width: 50px;
+  font-size: 10px;
+  color: black;
+}
+
+.br {
+  border-right: 1px solid black;
+}
+
+.bb {
+  border-bottom: 1px solid black;
+}
+
+#players, #xo {
+  margin-top: 70px;
+  margin-bottom: 20px;
+}
+
+#oneP {
+  color: black;
+  margin-bottom: 10px;
+}
+
+#oneP:hover {
+  padding: 5px;
+  border: 2px dashed grey;
+  border-radius: 20px;
+}
+
+#twoP {
+  color: black;
+}
+
+#twoP:hover {
+  padding: 5px;
+  border: 2px dashed grey;
+  border-radius: 20px;
+}
+
+#X {
+  color: black;
+  float: left;
+  margin-left: 42%;
+}
+
+#X:hover {
+  padding: 5px;
+  border: 2px dashed grey;
+  border-radius: 20px;
+}
+
+#O {
+  color: black;
+  float: left;
+  margin-left: 50px;
+}
+
+#O:hover {
+  padding: 5px;
+  border: 2px dashed grey;
+  border-radius: 20px;
+}
+
+#resetbtn {
+  font-size: 40px;
+}
+
+#winner {
+  background: blue;
+  width: 400px;
+  height: 160px;
+  margin: auto;
+  margin-top: 70px;
+  padding-top: 50px;
+  border-radius: 50%;
+  font-size: 40px;
+  color: white;
+}
