@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css?family=Lobster|Permanent+Marker|Press+Start+2P');
-main, body, html {
-  background-color: #D2B887;
+main,
+body,
+html {
+  background-color: #d2b887;
   background-size: 100%;
   background-attachment: fixed;
   color: red;
@@ -22,7 +24,8 @@ main, body, html {
   position: relative;
 }
 
-#title1, #title2 {
+#title1,
+#title2 {
   color: black;
   font-family: 'Lobster', cursive;
 }
@@ -34,7 +37,8 @@ main, body, html {
   border-top: 2px solid black;
 }
 
-.playerOneTurn, .playerTwoTurn {
+.playerOneTurn,
+.playerTwoTurn {
   height: 160px;
   width: 22px;
   letter-spacing: 10px;
@@ -46,6 +50,7 @@ main, body, html {
   color: white;
   font-family: 'Press Start 2P', cursive;
   position: absolute;
+  display: none;
 }
 
 .playerOneTurn {
@@ -67,11 +72,19 @@ table {
   width: 100px;
 }
 
+#gameboard {
+  display: none;
+}
+
 .winCount td {
   height: 20px;
   width: 50px;
   font-size: 10px;
   color: black;
+}
+
+.winCount {
+  opacity: 0;
 }
 
 .br {
@@ -82,9 +95,14 @@ table {
   border-bottom: 1px solid black;
 }
 
-#players, #xo {
+#players,
+#xo {
   margin-top: 70px;
   margin-bottom: 20px;
+}
+
+#xo {
+  display: none;
 }
 
 #oneP {
@@ -146,4 +164,5 @@ table {
   border-radius: 50%;
   font-size: 40px;
   color: white;
+  display: none;
 }

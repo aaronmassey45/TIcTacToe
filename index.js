@@ -16,15 +16,6 @@ $(document).ready(function() {
     p2WinCount = 0,
     computerWinCount = 0;
 
-  $('#gameboard').hide();
-  $('#xo').hide();
-  $('#winner').hide();
-  $('.playerOneTurn').hide();
-  $('.playerTwoTurn').hide();
-  $('.winCount').css({
-    opacity: 0,
-  });
-
   //CHOOSES NUMBER OF PLAYERS
   $('#oneP').click(function() {
     numPlayers = 1;
