@@ -1,7 +1,12 @@
 $(document).ready(function() {
-  let grid = Array(9).fill(null);
   const p1 = { xo: '', winCount: 0 };
-  const p2 = { xo: '', winCount: 0, isComputer: false, isComputerTurn: false };
+  const p2 = { xo: '', winCount: 0 };
+  const turnTime = 350;
+  const game = {
+    isGameOver: false,
+    isTwoPlayers: false,
+    turn: 0,
+  };
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -12,141 +17,72 @@ $(document).ready(function() {
     [0, 4, 8],
     [2, 4, 6],
   ];
-  let numPlayers = 0; //stores number of players
-  let turn = 0; //turn counter
-  let prefix = 'grid';
-  let el; //used with prefix to set mark on a grid position
-  let empty = ['6', '2', '0', '1', '3', '4', '8', '5', '7']; //array for empty grid spaces
-  let lastDigit; //gets the digit off grid id
-  let win; //variable to stop game if there is a win or draw
-  let turnTime = 350;
+  let grid = Array(9).fill(null);
+  let aiSequence = ['6', '2', '0', '1', '3', '4', '8', '5', '7']; //array for ai moves
 
-  //CHOOSES NUMBER OF PLAYERS
-  $('#oneP').click(function() {
-    numPlayers = 1;
+  $('#oneP, #twoP').click(function() {
+    game.isTwoPlayers = this.id === 'twoP';
     $('#players').hide();
     $('#xo').show();
-    $('.aiORp2').html('Computer');
-  });
-  $('#twoP').click(function() {
-    numPlayers = 2;
-    $('#players').hide();
-    $('#xo').show();
-    $('.aiORp2').html('Player 2');
+    $('.p2').text(game.isTwoPlayers ? 'Player 2' : 'Computer');
   });
 
-  //P1 CHOOSES X OR O
-  $('#X').click(function() {
-    p1.xo = 'X';
-    p2.xo = 'O';
+  $('#X, #O').click(function() {
+    if (this.id === 'X') {
+      p1.xo = 'X';
+      p2.xo = 'O';
+    } else {
+      p1.xo = 'O';
+      p2.xo = 'X';
+    }
+
     $('#xo').hide();
     $('#gameboard').show();
-    $('.playerOneTurn').animate(
-      {
-        width: 'toggle',
-      },
-      turnTime
-    );
-    $('.winCount').fadeTo('slow', 1);
-  });
-  $('#O').click(function() {
-    p1.xo = 'O';
-    p2.xo = 'X';
-    $('#xo').hide();
-    $('#gameboard').show();
-    $('.playerOneTurn').animate(
-      {
-        width: 'toggle',
-      },
-      turnTime
-    );
+    $('.playerOneTurn').animate({ width: 'toggle' }, turnTime);
     $('.winCount').fadeTo('slow', 1);
   });
 
-  //RESET BUTTON LOGIC
-  $('#resetbtn').click(function() {
-    resetAll();
-  });
+  $('#resetbtn').click(reset);
 
-  $('td').on('click', function() {
-    //GAMEPLAY FOR ONE PLAYER
-    if (numPlayers === 1 && turn < 9) {
-      if ($(this).html() === '') {
-        //makes sure spot is empty first
-        p2.isComputerTurn = false;
-        $(this).html(p1.xo); //sets p1 marker at the clicked location
-        turn++; //increments turn
-        lastDigit = this.id.substr(-1); //grabs digit from grid id
-        grid[lastDigit] = p1.xo;
-        checkWin(grid); //checks to see if p1 has won
-        if (win === true) {
-          return;
-        }
-        $('.playerOneTurn').animate({ width: 'toggle' }, turnTime);
-        $('.playerTwoTurn').animate({ width: 'toggle' }, turnTime);
-        $('#gameboard').css('pointer-events', 'none'); //disables clicking during computer turn
-        setTimeout(function() {
-          const spot = chooseAiSquare(grid);
-          el = document.getElementById(prefix + spot); //sets el
-          $(el).html(p2.xo); //puts AI mark at el
-          grid[spot] = p2.xo;
-          $('.playerOneTurn').animate({ width: 'toggle' }, turnTime);
-          $('.playerTwoTurn').animate({ width: 'toggle' }, turnTime);
-          $('#gameboard').css('pointer-events', 'auto'); //re-enables clicking after computer turn
-          turn++; //increments turn
-          checkWin(grid); //checks to see if AI has won
-        }, 1200);
-      }
-    }
+  $('#gameboard td').on('click', function() {
+    const hasError = handleClick(this);
+    if (hasError) return;
+    checkWin(grid);
 
-    //GAMEPLAY FOR TWO PLAYERS
-    else if (numPlayers === 2 && turn < 9) {
-      if (turn % 2 === 0) {
-        //if turn is even, p1 goes
-        if ($(this).html() === '') {
-          $(this).html(p1.xo); //sets p1 marker at the clicked location
-          turn++; //increments turn
-          $('.playerOneTurn').animate(
-            {
-              width: 'toggle',
-            },
-            turnTime
-          );
-          $('.playerTwoTurn').animate(
-            {
-              width: 'toggle',
-            },
-            turnTime
-          );
-          checkWin(grid); //checks if p1 has won
-          if (win === true) {
-            return;
-          }
-        }
-      } else {
-        //if turn is odd, p2 goes
-        if ($(this).html() === '') {
-          $(this).html(p2.xo); //sets p2 marker at the clicked location
-          turn++; //increments turn
-          $('.playerOneTurn').animate(
-            {
-              width: 'toggle',
-            },
-            turnTime
-          );
-          $('.playerTwoTurn').animate(
-            {
-              width: 'toggle',
-            },
-            turnTime
-          );
-          checkWin(grid); //checks if p2 has won
-        }
-      }
+    if (!game.isTwoPlayers && !game.isGameOver) {
+      $('#gameboard').css('pointer-events', 'none'); //disables clicking during computer turn
+      setTimeout(handleAiTurn, 1200);
     }
   });
 
-  //checkWin FUNCTION
+  function handleClick(element) {
+    if (!$(element).text()) {
+      const isPlayerTwo = game.isTwoPlayers && game.turn % 2 === 0;
+      isPlayerTwo ? $(element).text(p2.xo) : $(element).text(p1.xo);
+      game.turn += 1;
+      if (game.turn > 8) return handleGameOver("It's a draw!");
+      $('.playerOneTurn, .playerTwoTurn').animate(
+        { width: 'toggle' },
+        turnTime
+      );
+      const lastDigit = element.id.substr(-1);
+      grid[lastDigit] = isPlayerTwo ? p2.xo : p1.xo;
+      return false;
+    }
+    return true;
+  }
+
+  function handleAiTurn() {
+    const spot = chooseAiSquare(grid);
+    $(`#grid${spot}`).html(p2.xo);
+    grid[spot] = p2.xo;
+    $('.playerOneTurn, .playerTwoTurn').animate({ width: 'toggle' }, turnTime);
+    game.turn += 1;
+    if (game.turn > 8) return handleGameOver("It's a draw!");
+    checkWin(grid);
+    $('#gameboard').css('pointer-events', 'auto');
+  }
+
   function checkWin(squares) {
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
@@ -161,7 +97,6 @@ $(document).ready(function() {
     return null;
   }
 
-  //Chooses where AI marks on the grid if p1 or AI is about to win
   function chooseAiSquare(squares) {
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
@@ -181,61 +116,56 @@ $(document).ready(function() {
         return a;
       }
     }
-    return empty.shift();
-  }
-
-  //RESET FUNCTION TO RESET GAME AFTER A WIN OR DRAW
-  function reset() {
-    win = false;
-    turn = 0;
-    grid = Array(9).fill(null);
-    empty = ['6', '2', '0', '1', '3', '4', '8', '5', '7'];
-
-    for (i = 0; (el = document.getElementById(prefix + i)); i++) {
-      $(el).html('');
+    for (let i = 0; i < aiSequence.length; i++) {
+      const spot = aiSequence[i];
+      if (grid[spot] === null) return spot;
+      aiSequence.splice(i, 1);
     }
-    $('#gameboard').show();
-    $('.playerOneTurn').animate(
-      {
-        width: 'toggle',
-      },
-      turnTime
-    );
-    return (turn = 0);
   }
 
-  //RESET FUNCTION TO RESET EVERYTHING
-  function resetAll() {
-    numPlayers = 0;
+  function clearBoard() {
+    game.turn = 0;
+    game.isGameOver = false;
+    grid = Array(9).fill(null);
+    aiSequence = ['6', '2', '0', '1', '3', '4', '8', '5', '7'];
+
+    for (let i = 0; i < 9; i++) {
+      $(`#grid${i}`).text('');
+    }
+  }
+
+  function newGame() {
+    clearBoard();
+    $('#gameboard').show();
+    $('.playerOneTurn').animate({ width: 'toggle' }, turnTime);
+  }
+
+  function reset() {
+    clearBoard();
+    game.isTwoPlayers = false;
     p1.xo = '';
     p2.xo = '';
-    win = false;
-    turn = 0;
     p1.winCount = 0;
     p2.winCount = 0;
-    grid = Array(9).fill(null);
-    empty = ['6', '2', '0', '1', '3', '4', '8', '5', '7'];
 
-    $('.p1WinCount').html('0');
-    $('.aiORp2WinCount').html('0');
-
-    for (i = 0; (el = document.getElementById(prefix + i)); i++) {
-      $(el).html('');
-    }
-    $('#gameboard').hide();
-    $('#xo').hide();
-    $('#winner').hide();
+    $('.p1WinCount, .p2WinCount').text('0');
+    $('#gameboard, #xo, #winner, .playerOneTurn, .playerTwoTurn').hide();
     $('#players').show();
-    $('.playerOneTurn').hide();
-    $('.playerTwoTurn').hide();
     $('.winCount').fadeTo('slow', 0);
-
-    return (turn = 0);
   }
 
-  //WHAT TO DO IN DIFFERENT WIN/DRAW SCENARIOS
+  function handleGameOver(msg) {
+    game.isGameOver = true;
+    $('#gameboard, .playerOneTurn, .playerTwoTurn').hide();
+    $('#winner')
+      .text(msg)
+      .fadeIn()
+      .fadeOut(1500);
+    setTimeout(newGame, 2001);
+  }
+
   function displayWinner(pos1, pos2, pos3) {
-    win = true;
+    game.isGameOver = true;
     const positions = `#grid${pos1}, #grid${pos2}, #grid${pos3}`;
     const winVariables = {};
 
@@ -253,29 +183,8 @@ $(document).ready(function() {
     setTimeout(function() {
       $(positions).css({ 'background-color': 'transparent', color: 'red' });
 
-      $(`.p${winVariables.player}WinCount`).html(winVariables.winCount);
-      $('#gameboard, .playerOneTurn, .playerTwoTurn').hide();
-      $('#winner')
-        .html(`Player ${winVariables.player} wins!`)
-        .fadeIn()
-        .fadeOut(1250);
-      setTimeout(function() {
-        reset();
-      }, 2001);
+      $(`.p${winVariables.player}WinCount`).text(winVariables.winCount);
+      handleGameOver(`Player ${winVariables.player} wins!`);
     }, 1500);
-  }
-
-  function noWin() {
-    win = true;
-    $('#gameboard').hide();
-    $('.playerOneTurn').hide();
-    $('.playerTwoTurn').hide();
-    $('#winner')
-      .html("It's a draw!")
-      .fadeIn()
-      .fadeOut(1000);
-    setTimeout(function() {
-      reset();
-    }, 2001);
   }
 });

@@ -150,10 +150,6 @@ table {
   border-radius: 20px;
 }
 
-#resetbtn {
-  font-size: 40px;
-}
-
 #winner {
   background: blue;
   width: 400px;
